@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        ul,li {
+            color: #53b0da;
+            list-style: none;
+            line-height: 30px;
+        }
+    </style>
+</head>
+<body>
+<ul id="test"></ul>
+<script>
+    console.time()
+    var arr = []
+    for (var i = 0; i<146090; i++) {
+    	arr.push(`我是第${i}个,哈哈`)
+    }
+    console.timeEnd()
+    console.time()
+    // 传统方法 | ---->
+    // var html = ''
+    // for (var i = 0; i<arr.length;i++){
+    // 	html += `<li>${arr[i]}<li>`
+    // }
+    // document.getElementById('test').innerHTML = html
+    var renderIndex = 0
+    var splitGroup =function (data) {
+	    var middleGroup = []
+	    var smallGroup = []
+        for (var i = 1; i<data.length+1; i++) {
+            if (i % 500 == 0) {
+                middleGroup.push(smallGroup)
+	            smallGroup = Array.from([])
+            }
+            smallGroup.push(data[i])
+        }
+        middleGroup.push(smallGroup)
+        return middleGroup
+    }
+
+    var loadData = function (data) {
+        var middleRenderGroup = splitGroup(data)
+        for (let i = 0, len = middleRenderGroup.length; i < len; i++) {
+        	setTimeout( () => {
+        		loadByIndex(middleRenderGroup[i], i)
+            }, 1)
+        }
+    }
+
+    var loadByIndex = function (part, index) {
+        var frag = document.createDocumentFragment()
+        frag.innerHTML = ''
+        for (var i = 0, len = part.length; i < len; i++) {
+	        let li = document.createElement("li");
+	        li.textContent = part[i];
+	        frag.appendChild(li);
+        }
+        while (index - renderIndex == 0) {
+	        document.getElementById('test').appendChild(frag)
+            renderIndex = index + 1
+        }
+    }
+    loadData(arr)
+    console.timeEnd()
+</script>
+</body>
+</html>
